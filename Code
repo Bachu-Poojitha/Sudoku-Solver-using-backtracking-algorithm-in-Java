@@ -1,0 +1,101 @@
+Code:
+import java.util.*;
+
+class Pair {
+    int ri, ci;
+    Pair(int ri, int ci) {
+        this.ri = ri;
+        this.ci = ci;
+    }
+}
+
+class BeingZero {
+    public static boolean isvalid(int i, int j, int val, ArrayList<ArrayList<Integer>> mat) {
+        // Check row and column
+        for (int k = 0; k < 9; k++) {
+            if (mat.get(i).get(k) == val || mat.get(k).get(j) == val) {
+                return false;
+            }
+        }
+
+        // Check 3x3 subgrid
+        int val1 = (i / 3) * 3;
+        int val2 = (j / 3) * 3;
+        for (int m = val1; m < val1 + 3; m++) {
+            for (int n = val2; n < val2 + 3; n++) {
+                if (mat.get(m).get(n) == val) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private static boolean helper(int index, List<Pair> emptycell, ArrayList<ArrayList<Integer>> arr) {
+        if (index == emptycell.size()) {
+            return true; // All empty cells filled
+        }
+
+        Pair temp = emptycell.get(index);
+        for (int val = 1; val <= 9; val++) {
+            if (isvalid(temp.ri, temp.ci, val, arr)) {
+                arr.get(temp.ri).set(temp.ci, val);
+                if (helper(index + 1, emptycell, arr)) return true;
+                arr.get(temp.ri).set(temp.ci, 0); // backtrack
+            }
+        }
+        return false;
+    }
+
+    public ArrayList<ArrayList<Integer>> solve(ArrayList<ArrayList<Integer>> arr) {
+        List<Pair> pair = new ArrayList<>();
+
+        // Collect empty cells
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                if (arr.get(i).get(j) == 0) {
+                    pair.add(new Pair(i, j));
+                }
+            }
+        }
+
+        if (helper(0, pair, arr)) {
+            return arr;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    // -------------------------
+    // MAIN FUNCTION
+    // -------------------------
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        ArrayList<ArrayList<Integer>> sudoku = new ArrayList<>();
+
+        System.out.println("Enter Sudoku puzzle (9x9, use 0 for empty cells):");
+
+        for (int i = 0; i < 9; i++) {
+            ArrayList<Integer> row = new ArrayList<>();
+            for (int j = 0; j < 9; j++) {
+                row.add(sc.nextInt());
+            }
+            sudoku.add(row);
+        }
+
+        BeingZero solver = new BeingZero();
+        ArrayList<ArrayList<Integer>> solved = solver.solve(sudoku);
+
+        if (solved.isEmpty()) {
+            System.out.println("No solution exists!");
+        } else {
+            System.out.println("Solved Sudoku:");
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < 9; j++) {
+                    System.out.print(solved.get(i).get(j) + " ");
+                }
+                System.out.println();
+            }
+        }
+    }
+}
